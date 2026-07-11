@@ -1,0 +1,10 @@
+{
+  "name": "Ezan Vakti — Namaz Vakitleri, Kıble, İbadet Takibi",
+  "short_name": "Ezan Vakti",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0C1526",
+  "theme_color": "#0C1526",
+  "description": "Çevrimdışı namaz vakitleri (7 hesap yöntemi), AR kıble pusulası, imsakiye, ibadet takibi, zikirmatik ve zekat hesaplayıcı.",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
