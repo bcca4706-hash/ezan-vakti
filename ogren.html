@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0C1526">
+<title>Namaz Öğren — Ezan Vakti</title>
+<style>
+:root{--bg:#0C1526;--panel:#14233B;--line:#24395C;--gold:#C9A22F;--ivory:#F2E9D5;--muted:#8296B0}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ivory);font-family:system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px}
+a.geri{color:var(--muted);text-decoration:none;font-size:14px;align-self:flex-start;padding:6px 0}
+h1{font-family:Georgia,serif;font-weight:400;font-size:22px;margin:4px 0 10px}
+.sahne{width:min(84vw,320px);background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:10px}
+.adimNo{color:var(--gold);font-size:11px;letter-spacing:.25em;text-transform:uppercase;text-align:center;margin-top:6px}
+.adimAd{font-family:Georgia,serif;font-size:21px;text-align:center;color:var(--gold);margin:4px 0}
+.aciklama{font-size:14.5px;line-height:1.75;text-align:center;color:var(--ivory);padding:0 10px 10px;min-height:96px}
+.noktalar{display:flex;gap:5px;justify-content:center;margin:10px 0}
+.nk{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.nk.ok{background:var(--gold)}
+.ctrl{width:min(84vw,320px);margin-top:10px}
+.yy{display:flex;gap:8px}
+button{flex:1;background:var(--panel);color:var(--ivory);border:1px solid var(--line);border-radius:11px;padding:13px;font-size:15px;cursor:pointer}
+button.altin{background:var(--gold);color:#1a1406;border:none;font-weight:600}
+.mini{color:var(--muted);font-size:12px;text-align:center;margin-top:10px;line-height:1.6}
+svg{display:block;width:100%;height:auto}
+</style>
+</head>
+<body>
+<a class="geri" href="index.html">‹ Ezan Vakti</a>
+<h1>Namaz Nasıl Kılınır?</h1>
+<div class="sahne">
+<svg id="figur" viewBox="0 0 200 170"></svg>
+<div class="adimNo" id="no"></div>
+<div class="adimAd" id="ad"></div>
+<div class="aciklama" id="ack"></div>
+<div class="noktalar" id="nokta"></div>
+</div>
+<div class="ctrl">
+<div class="yy">
+<button id="onceki">‹ Önceki</button>
+<button id="dinle">🔊 Dinle</button>
+<button id="sonraki">Sonraki ›</button>
+</div>
+<button class="altin" id="oto" style="width:100%;margin-top:8px">▶ Otomatik Anlatım</button>
+<div class="mini">Örnek: iki rekatlık sabah namazının farzı. Detaylı fıkhî bilgi için Diyanet İlmihali'ne veya müftülüğe başvur.</div>
+</div>
+<script>
+"use strict";
+var G='#C9A22F',I='#F2E9D5';
+function fig(poz){var s="";
+function govde(yol){return '<path d="'+yol+'" fill="none" stroke="'+G+'" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>'}
+function kafa(x,y){return '<circle cx="'+x+'" cy="'+y+'" r="12" fill="none" stroke="'+G+'" stroke-width="6"/>'}
+s+='<line x1="20" y1="158" x2="180" y2="158" stroke="#24395C" stroke-width="3"/>';
+if(poz==="kiyam"){s+=kafa(100,34)+govde("M100 46 L100 110 M100 110 L92 155 M100 110 L108 155 M100 62 L86 84 L100 92 M100 62 L114 84 L100 92")}
+else if(poz==="tekbir"){s+=kafa(100,34)+govde("M100 46 L100 110 M100 110 L92 155 M100 110 L108 155 M100 60 L80 48 L78 34 M100 60 L120 48 L122 34")}
+else if(poz==="ruku"){s+=kafa(146,72)+govde("M100 155 L100 108 M108 155 L104 108 M100 108 L136 76 M118 92 L124 118 M126 85 L132 112")}
+else if(poz==="secde"){s+=kafa(152,140)+govde("M60 155 L72 118 L108 132 L140 150 M108 132 L118 152 M72 130 L60 152")}
+else{s+=kafa(96,64)+govde("M96 76 L92 116 L60 128 L64 152 M92 116 L128 126 M96 90 L112 106 M96 90 L82 106")}
+document.getElementById("figur").innerHTML=s}
+var ADIM=[
+["Niyet","kiyam","Kıbleye dönülür, ayakta niyet edilir: \u201cNiyet ettim Allah rızası için bugünkü sabah namazının farzını kılmaya.\u201d"],
+["İftitah Tekbiri","tekbir","Eller kulak hizasına kaldırılır ve \u201cAllâhu Ekber\u201d denilerek namaza başlanır. Ardından eller bağlanır."],
+["Kıyam — 1. Rekat","kiyam","Ayakta sırasıyla Sübhâneke, Eûzü-Besmele, Fâtiha Sûresi ve kısa bir sûre (örneğin Kevser) okunur."],
+["Rükû","ruku","\u201cAllâhu Ekber\u201d denilerek eğilinir, eller dizlere konur. Üç kez \u201cSübhâne Rabbiye'l-azîm\u201d denir."],
+["Kavme","kiyam","\u201cSemiallâhu limen hamideh\u201d denilerek doğrulunur, ayakta \u201cRabbenâ leke'l-hamd\u201d denir."],
+["Secde","secde","\u201cAllâhu Ekber\u201d ile secdeye varılır; alın, burun, eller, dizler ve ayak parmakları yere değer. Üç kez \u201cSübhâne Rabbiye'l-a'lâ\u201d denir."],
+["Celse","oturus","\u201cAllâhu Ekber\u201d denilerek doğrulup kısa bir süre oturulur."],
+["İkinci Secde","secde","Tekrar \u201cAllâhu Ekber\u201d denilerek secde edilir ve üç kez \u201cSübhâne Rabbiye'l-a'lâ\u201d denir. Sonra ayağa kalkılır."],
+["Kıyam — 2. Rekat","kiyam","Ayakta Besmele, Fâtiha ve kısa bir sûre okunur."],
+["Rükû ve Secdeler","ruku","Birinci rekattaki gibi rükû yapılır, doğrulunur ve iki secde daha yapılır."],
+["Ka'de-i Ahîre","oturus","Son oturuşta Tahiyyât, Allâhümme Salli, Allâhümme Bârik ve Rabbenâ duaları okunur."],
+["Selam","oturus","Önce sağa, sonra sola dönülerek \u201cEs-selâmü aleyküm ve rahmetullâh\u201d denir. Namaz tamamlanmıştır."]];
+var i=0,otoT=null;
+function yaz(){var a=ADIM[i];fig(a[1]);
+document.getElementById("no").textContent="Adım "+(i+1)+" / "+ADIM.length;
+document.getElementById("ad").textContent=a[0];
+document.getElementById("ack").textContent=a[2];
+document.getElementById("nokta").innerHTML=ADIM.map(function(_,j){return '<div class="nk'+(j<=i?' ok':'')+'"></div>'}).join("")}
+function oku(){try{speechSynthesis.cancel();
+var u=new SpeechSynthesisUtterance(ADIM[i][0]+". "+ADIM[i][2]);
+u.lang="tr-TR";u.rate=0.95;speechSynthesis.speak(u)}catch(e){}}
+document.getElementById("onceki").addEventListener("click",function(){if(i>0){i--;yaz()}});
+document.getElementById("sonraki").addEventListener("click",function(){if(i<ADIM.length-1){i++;yaz()}});
+document.getElementById("dinle").addEventListener("click",oku);
+document.getElementById("oto").addEventListener("click",function(){
+if(otoT){clearInterval(otoT);otoT=null;speechSynthesis.cancel();this.textContent="▶ Otomatik Anlatım";return}
+this.textContent="⏸ Durdur";i=0;yaz();oku();
+otoT=setInterval(function(){
+if(i<ADIM.length-1){i++;yaz();oku()}
+else{clearInterval(otoT);otoT=null;document.getElementById("oto").textContent="▶ Otomatik Anlatım"}},9000)});
+yaz();
+</script>
+</body>
+</html>

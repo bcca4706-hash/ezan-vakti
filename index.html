@@ -126,6 +126,13 @@ nav button.aktif{color:var(--gold)}
 <div class="kbaslik" data-i="dua">Günün Duası</div>
 <div class="dua" id="dua"></div>
 </div>
+<div class="kart">
+<div class="kbaslik">Keşfet</div>
+<div class="yanyana">
+<a class="btn ikincil" style="text-decoration:none;text-align:center" href="sanat.html">🖼️ Günün Levhası</a>
+<a class="btn ikincil" style="text-decoration:none;text-align:center" href="ogren.html">🕌 Namaz Öğren</a>
+</div>
+</div>
 </section>
 
 <section class="sayfa" id="s-kible">
@@ -149,6 +156,8 @@ nav button.aktif{color:var(--gold)}
 <button class="btn ikincil" id="arBtn">📷 <span data-i="ar">AR Modu</span></button>
 <button class="btn ikincil" id="camiBtn">🕌 <span data-i="camiler">Yakın Camiler</span></button>
 </div>
+<button class="btn ikincil" id="seyahatBtn">✈️ Seyahat Modu: Kapalı</button>
+<div class="mini" id="seyahatInfo">Uçak/otobüste metal gövde manyetik pusulayı şaşırtır. Kıble doğru gösterirken aç; jiroskop devralır.</div>
 </div>
 </section>
 
@@ -444,7 +453,7 @@ function pusulaBaslat(){if(pusulaAcik)return;
 var h=function(e){var x=null;
 if(e.webkitCompassHeading!=null)x=e.webkitCompassHeading;
 else if(e.alpha!=null)x=(360-e.alpha)%360;
-if(x!=null){heading=x;pusulaGuncelle()}};
+if(x!=null){hamYon(x,e);pusulaGuncelle()}};
 if(typeof DeviceOrientationEvent!=="undefined"&&DeviceOrientationEvent.requestPermission){
 DeviceOrientationEvent.requestPermission().then(function(s){if(s==="granted"){window.addEventListener("deviceorientation",h);pusulaAcik=true}}).catch(function(){})}
 else{window.addEventListener("deviceorientationabsolute",h);window.addEventListener("deviceorientation",h);pusulaAcik=true}
@@ -605,6 +614,21 @@ document.documentElement.dir=S.dil==="ar"?"rtl":"ltr";
 document.querySelectorAll("[data-i]").forEach(function(el){el.textContent=t(el.dataset.i)});
 tarihYaz();vakitleriYenile();imsakiyeCiz();zikirYaz();takipYaz();tik()}
 
+var seyahat=false,sonAlpha=null;
+function hamYon(x,e){
+if(!seyahat){heading=x;sonAlpha=e.alpha;return}
+if(e.alpha!=null&&sonAlpha!=null){var d=e.alpha-sonAlpha;if(d>180)d-=360;if(d<-180)d+=360;
+heading=(((heading==null?0:heading)-d)%360+360)%360}
+sonAlpha=e.alpha}
+document.getElementById("seyahatBtn").addEventListener("click",function(){
+if(!pusulaAcik)pusulaBaslat();
+seyahat=!seyahat;titret([30]);
+this.textContent=seyahat?"🔒 Seyahat Modu: Açık":"✈️ Seyahat Modu: Kapalı";
+var inf=document.getElementById("seyahatInfo");
+if(seyahat){inf.innerHTML='Kıble kilitli — jiroskop takipte, manyetik alan yok sayılıyor. İnce ayar: <button class="chip" id="syL" style="padding:6px 14px">↺ 5°</button> <button class="chip" id="syR" style="padding:6px 14px">5° ↻</button>';
+document.getElementById("syL").addEventListener("click",function(){heading=(((heading||0)-5)%360+360)%360;pusulaGuncelle()});
+document.getElementById("syR").addEventListener("click",function(){heading=(((heading||0)+5)%360+360)%360;pusulaGuncelle()})}
+else inf.textContent="Manyetik pusulaya dönüldü."});
 roseCiz();duaYaz();dilUygula();konumDegisti();
 setInterval(tik,1000);
 if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js");

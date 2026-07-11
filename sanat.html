@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0C1526">
+<title>Günün Levhası — Ezan Vakti</title>
+<style>
+:root{--bg:#0C1526;--panel:#14233B;--line:#24395C;--gold:#C9A22F;--ivory:#F2E9D5;--muted:#8296B0}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ivory);font-family:system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px}
+a.geri{color:var(--muted);text-decoration:none;font-size:14px;align-self:flex-start;padding:6px 0}
+h1{font-family:Georgia,serif;font-weight:400;font-size:22px;margin:4px 0 2px}
+.alt{color:var(--muted);font-size:12.5px;margin-bottom:12px;text-align:center}
+canvas{width:min(78vw,300px);border-radius:16px;border:1px solid var(--line);box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.ctrl{width:100%;max-width:340px;margin-top:14px}
+select,button{width:100%;background:var(--panel);color:var(--ivory);border:1px solid var(--line);border-radius:11px;padding:12px;font-size:15px;margin:4px 0;cursor:pointer}
+button.altin{background:var(--gold);color:#1a1406;border:none;font-weight:600}
+.yy{display:flex;gap:8px}
+.mini{color:var(--muted);font-size:12px;text-align:center;margin-top:8px;line-height:1.6}
+</style>
+</head>
+<body>
+<a class="geri" href="index.html">‹ Ezan Vakti</a>
+<h1>Günün Levhası</h1>
+<div class="alt" id="altYazi"></div>
+<canvas id="cv" width="1440" height="2960"></canvas>
+<div class="ctrl">
+<select id="stil">
+<option value="0">Günün deseni (otomatik)</option>
+<option value="1">Selçuklu Yıldız Kafesi</option>
+<option value="2">Girih Çizgileri</option>
+<option value="3">Hat Levhası</option>
+</select>
+<div class="yy">
+<button id="karistir">🔀 Yeni Desen</button>
+<button class="altin" id="indir">⬇ Duvar Kağıdı İndir</button>
+</div>
+<div class="mini">Desenler cihazda matematiksel olarak üretilir; her günün deseni o güne özeldir. İndirilen PNG 1440×2960 çözünürlüğündedir.</div>
+</div>
+<script>
+"use strict";
+var cv=document.getElementById("cv"),ctx=cv.getContext("2d"),W=1440,H=2960;
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+var PAL=[{bg1:"#0A1226",bg2:"#152441",cizgi:"#C9A22F",vurgu:"#8FA7E8",ad:"Lacivert & Altın"},
+{bg1:"#0E1F16",bg2:"#173226",cizgi:"#D4B44A",vurgu:"#7FC8A9",ad:"Zümrüt & Altın"},
+{bg1:"#230D12",bg2:"#3A1720",cizgi:"#E8C878",vurgu:"#E07856",ad:"Bordo & Kehribar"},
+{bg1:"#0B0B0D",bg2:"#17171C",cizgi:"#C9A22F",vurgu:"#8A8A96",ad:"Gece & Altın"},
+{bg1:"#0D2233",bg2:"#154158",cizgi:"#EFE6D0",vurgu:"#5FB7D4",ad:"Çini Mavisi"}];
+var HAT=[["الله","Allah (c.c.)"],["مُحَمَّد","Muhammed (s.a.v.)"],["بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيمِ","Besmele-i Şerîf"],["اَلْحَمْدُ لِلّٰهِ","Elhamdülillâh"],["سُبْحَانَ اللّٰهِ","Sübhânallah"],["لَا إِلٰهَ إِلَّا اللّٰهُ","Kelime-i Tevhid"],["اَللّٰهُ أَكْبَرُ","Allâhu Ekber"]];
+function gunSayisi(){var n=new Date();return n.getFullYear()*400+Math.floor((n-new Date(n.getFullYear(),0,0))/86400000)}
+var seedEk=0;
+function zemin(p){var g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,p.bg1);g.addColorStop(1,p.bg2);
+ctx.fillStyle=g;ctx.fillRect(0,0,W,H)}
+function yildiz(cx,cy,s,p,dolu){ctx.save();ctx.translate(cx,cy);
+[0,45].forEach(function(a){ctx.save();ctx.rotate(a*Math.PI/180);
+ctx.beginPath();ctx.rect(-s/2,-s/2,s,s);
+if(dolu){ctx.fillStyle=p.vurgu+"22";ctx.fill()}
+ctx.strokeStyle=p.cizgi;ctx.lineWidth=5;ctx.stroke();ctx.restore()});
+ctx.beginPath();ctx.arc(0,0,s*0.14,0,7);ctx.fillStyle=p.cizgi;ctx.fill();ctx.restore()}
+function stilYildiz(r,p){zemin(p);var s=W/5.5,adim=s*1.62;
+for(var y=-s;y<H+s;y+=adim)for(var x=-s;x<W+s;x+=adim){
+yildiz(x,y,s,p,r()>0.5);yildiz(x+adim/2,y+adim/2,s*0.62,p,r()>0.5)}
+cerceve(p)}
+function stilGirih(r,p){zemin(p);var s=W/4,n=12;
+for(var y=0;y<H+s;y+=s*0.87)for(var x=((Math.round(y/(s*0.87))%2)?s/2:0);x<W+s;x+=s){
+ctx.strokeStyle=p.cizgi;ctx.lineWidth=4;
+var pts=[];for(var i=0;i<n;i++)pts.push([x+s*0.55*Math.cos(i/n*6.283),y+s*0.55*Math.sin(i/n*6.283)]);
+for(var i=0;i<n;i++){var j=(i+5)%n;ctx.beginPath();ctx.moveTo(pts[i][0],pts[i][1]);ctx.lineTo(pts[j][0],pts[j][1]);ctx.stroke()}
+ctx.beginPath();ctx.arc(x,y,s*0.1,0,7);ctx.strokeStyle=p.vurgu;ctx.lineWidth=3;ctx.stroke()}
+cerceve(p)}
+function stilHat(r,p){zemin(p);
+var f=HAT[Math.floor(r()*HAT.length)];
+ctx.strokeStyle=p.cizgi;ctx.lineWidth=6;
+ctx.beginPath();ctx.arc(W/2,H*0.42,W*0.36,0,7);ctx.stroke();
+ctx.beginPath();ctx.arc(W/2,H*0.42,W*0.335,0,7);ctx.lineWidth=2.5;ctx.stroke();
+for(var i=0;i<24;i++){var a=i/24*6.283,r1=W*0.36,r2=W*0.395;
+ctx.beginPath();ctx.moveTo(W/2+r1*Math.cos(a),H*0.42+r1*Math.sin(a));
+ctx.lineTo(W/2+r2*Math.cos(a),H*0.42+r2*Math.sin(a));ctx.lineWidth=i%6===0?6:2.5;ctx.stroke()}
+ctx.fillStyle=p.cizgi;ctx.textAlign="center";ctx.textBaseline="middle";
+ctx.font='600 '+(f[0].length>10?110:260)+'px "Traditional Arabic","Amiri","Scheherazade New",serif';
+ctx.fillText(f[0],W/2,H*0.42,W*0.58);
+ctx.font='300 52px Georgia,serif';ctx.fillStyle=p.vurgu;
+ctx.fillText(f[1],W/2,H*0.42+W*0.44);
+[[120,120],[W-120,120],[120,H-120],[W-120,H-120]].forEach(function(k){
+ctx.beginPath();ctx.arc(k[0],k[1],70,0,7);ctx.strokeStyle=p.cizgi;ctx.lineWidth=3;ctx.stroke();
+ctx.beginPath();ctx.arc(k[0],k[1],10,0,7);ctx.fillStyle=p.cizgi;ctx.fill()});
+cerceve(p);return f[1]}
+function cerceve(p){ctx.strokeStyle=p.cizgi;
+ctx.lineWidth=10;ctx.strokeRect(44,44,W-88,H-88);
+ctx.lineWidth=3;ctx.strokeRect(70,70,W-140,H-140)}
+function uret(){var seed=gunSayisi()+seedEk*7919,r=rng(seed);
+var p=PAL[Math.floor(r()*PAL.length)];
+var st=+document.getElementById("stil").value;
+if(st===0)st=1+Math.floor(r()*3);
+var ek="";
+if(st===1)stilYildiz(r,p);else if(st===2)stilGirih(r,p);else ek=" · "+stilHat(r,p);
+document.getElementById("altYazi").textContent=new Intl.DateTimeFormat("tr-TR",{day:"numeric",month:"long",year:"numeric"}).format(new Date())+" · "+p.ad+ek}
+document.getElementById("karistir").addEventListener("click",function(){seedEk++;uret()});
+document.getElementById("stil").addEventListener("change",uret);
+document.getElementById("indir").addEventListener("click",function(){
+cv.toBlob(function(b){var a=document.createElement("a");
+a.href=URL.createObjectURL(b);a.download="levha-"+new Date().toISOString().slice(0,10)+".png";a.click()})});
+uret();
+</script>
+</body>
+</html>
